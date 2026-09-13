@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import PolicyIcon from "@/components/PolicyIcon";
 import { fetchActivePolicy, resetActivePolicy } from "@/lib/policy-client";
 import type { PolicySummary } from "@/lib/policy-shared";
 
-import PolicyHeader from "@/components/PolicyHeader";
+import { PageContainer } from "@/components/PageLayout";
+
 import AiDisclosure from "@/components/AiDisclosure";
 import SuggestedQuestions from "@/components/SuggestedQuestions";
 import ChatMessage, {
@@ -138,27 +141,30 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <PolicyHeader
-        hasMessages={messages.length > 0}
-        onClear={clearChat}
-      />
-
-      <section className="mx-auto flex min-h-[calc(100vh-81px)] max-w-4xl flex-col px-5 py-8">
-        <div className="mb-4 text-sm text-slate-600" aria-live="polite">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="min-w-0 break-words font-medium">Active Policy: {activePolicy ? activePolicy.id ? activePolicy.name : "Default Employee Handbook (NovaTech)" : "Not yet confirmed"}</p>
-            {activePolicy?.id && (
-              <button type="button" onClick={useDefaultPolicy} disabled={loading || resettingPolicy} className="rounded text-sm font-medium text-blue-700 hover:text-blue-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50">
-                {resettingPolicy ? "Restoring default policy..." : "Use Default Policy"}
-              </button>
-            )}
+    <PageContainer hasMessages={messages.length > 0} onClear={clearChat}>
+        <div className="rounded-2xl border border-white/90 bg-white/90 p-5 shadow-[0_8px_32px_-16px_rgba(30,64,175,0.18)] ring-1 ring-slate-200/60 backdrop-blur-sm sm:p-6" aria-live="polite">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600"><PolicyIcon name="document" className="h-6 w-6" /></span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-xs">Active Policy</p>
+                <p className="mt-1 break-words text-base font-semibold text-slate-800 sm:text-lg">{activePolicy ? activePolicy.id ? activePolicy.name : "Default Employee Handbook" : "Not yet confirmed"}</p>
+                {activePolicy && <p className="mt-1 text-xs text-slate-500 sm:text-sm">{activePolicy.id ? "Your uploaded company policy" : "NovaTech · Built-in handbook"}</p>}
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center gap-3">
+              {activePolicy && <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Active</span>}
+              <Link href="/upload" className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-300 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600">Change policy</Link>
+              {activePolicy?.id && (
+                <button type="button" onClick={useDefaultPolicy} disabled={loading || resettingPolicy} className="rounded-lg px-2 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50">
+                  {resettingPolicy ? "Restoring default policy..." : "Use Default Policy"}
+                </button>
+              )}
+            </div>
           </div>
-          {policyStatus && <p role="status" className="mt-2 text-emerald-700">{policyStatus}</p>}
-          {policyError && <p role="alert" className="mt-2 text-red-700">{policyError}</p>}
+          {policyStatus && <p role="status" className="mt-3 text-sm text-emerald-700">{policyStatus}</p>}
+          {policyError && <p role="alert" className="mt-3 text-sm text-red-700">{policyError}</p>}
         </div>
-        <AiDisclosure uploaded={Boolean(activePolicy?.id)} />
-
         {/* First Visit */}
         {messages.length === 0 && (
           <SuggestedQuestions
@@ -170,7 +176,7 @@ export default function Home() {
         {/* Conversation */}
         {messages.length > 0 && (
           <div
-            className="flex-1 space-y-6 pb-8"
+            className="mx-auto w-full max-w-4xl flex-1 space-y-6 py-8"
             aria-live="polite"
             aria-busy={loading}
           >
@@ -184,7 +190,7 @@ export default function Home() {
             {/* Loading State */}
             {loading && (
               <div className="flex justify-start">
-                <div className="rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+                <div className="rounded-2xl border border-blue-100 bg-white px-5 py-4 shadow-sm">
                   <p className="text-sm text-slate-500">
                     PolicyPal is checking the
                     handbook...
@@ -201,13 +207,18 @@ export default function Home() {
           </div>
         )}
 
-        <ChatInput
-          question={question}
-          loading={loading || resettingPolicy}
-          onQuestionChange={setQuestion}
-          onSubmit={() => askQuestion()}
-        />
-      </section>
-    </main>
+        <div className="mx-auto w-full max-w-4xl">
+          <ChatInput
+            question={question}
+            loading={loading || resettingPolicy}
+            onQuestionChange={setQuestion}
+            onSubmit={() => askQuestion()}
+          />
+          <AiDisclosure />
+          <p className="mt-6 border-t border-slate-200/70 pt-5 text-center text-xs leading-6 text-slate-400">
+            For personal or sensitive employment matters, contact People &amp; Culture.
+          </p>
+        </div>
+    </PageContainer>
   );
 }
