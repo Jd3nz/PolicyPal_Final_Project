@@ -3,8 +3,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import PolicyHeader from "@/components/PolicyHeader";
-import { fetchActivePolicy, readPolicyId } from "@/lib/policy-client";
-import { DEFAULT_POLICY_NAME, POLICY_STORAGE_KEY, validatePolicyFile, type PolicySummary } from "@/lib/policy-shared";
+import { fetchActivePolicy, readPolicyId, resetActivePolicy } from "@/lib/policy-client";
+import { POLICY_STORAGE_KEY, validatePolicyFile, type PolicySummary } from "@/lib/policy-shared";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -45,21 +45,20 @@ export default function UploadPage() {
   }
 
   async function useDefault() {
+    if (busy || !active?.id) return;
     setBusy(true);
     setError("");
+    setStatus("Restoring default policy...");
     try {
-      const previous = readPolicyId();
-      sessionStorage.removeItem(POLICY_STORAGE_KEY);
-      setActive({ id: null, name: DEFAULT_POLICY_NAME, sectionCount: 0 });
-      setStatus("The default handbook is active.");
-      if (previous) await fetch(`/api/policy?id=${encodeURIComponent(previous)}`, { method: "DELETE" });
-    } catch {
-      setError("Could not clear the temporary upload. Refresh to check the active policy.");
+      setActive(await resetActivePolicy());
+      setStatus("Default policy restored");
+    } catch (error) {
+      setStatus("Reset unsuccessful. Please try again.");
+      setError(error instanceof Error ? error.message : "Could not reset the policy. Please try again.");
     } finally {
       setBusy(false);
     }
   }
-
   return (
     <div className="min-h-screen bg-slate-50">
       <PolicyHeader currentPage="upload" />
@@ -96,8 +95,8 @@ export default function UploadPage() {
           </button>
         </form>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5">
-          <p className="min-w-0 break-words text-sm font-medium text-slate-700">Active Policy: {active?.name ?? "Not yet confirmed"}</p>
-          <button onClick={useDefault} disabled={busy} className="rounded text-sm font-medium text-blue-700 hover:text-blue-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:opacity-50">Use default handbook</button>
+          <p className="min-w-0 break-words text-sm font-medium text-slate-700">Active Policy: {active ? active.id ? active.name : "Default Employee Handbook (NovaTech)" : "Not yet confirmed"}</p>
+          {active?.id && <button type="button" onClick={useDefault} disabled={busy} className="rounded text-sm font-medium text-blue-700 hover:text-blue-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:opacity-50">Use Default Policy</button>}
         </div>
         <Link href="/" className="mt-6 inline-block rounded py-2 text-sm font-medium text-blue-700 hover:text-blue-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600">Back to chat</Link>
       </main>

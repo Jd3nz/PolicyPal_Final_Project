@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchActivePolicy } from "@/lib/policy-client";
+import { fetchActivePolicy, resetActivePolicy } from "@/lib/policy-client";
 import type { PolicySummary } from "@/lib/policy-shared";
 
 import PolicyHeader from "@/components/PolicyHeader";
@@ -25,6 +25,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [activePolicy, setActivePolicy] = useState<PolicySummary | null>(null);
   const [policyError, setPolicyError] = useState("");
+  const [resettingPolicy, setResettingPolicy] = useState(false);
+  const [policyStatus, setPolicyStatus] = useState("");
 
   useEffect(() => {
     fetchActivePolicy().then(setActivePolicy).catch((error: Error) => setPolicyError(error.message));
@@ -35,7 +37,7 @@ export default function Home() {
       text ?? question
     ).trim();
 
-    if (!submittedQuestion || loading) {
+    if (!submittedQuestion || loading || resettingPolicy) {
       return;
     }
 
@@ -115,6 +117,21 @@ export default function Home() {
     }
   }
 
+  async function useDefaultPolicy() {
+    if (loading || resettingPolicy || !activePolicy?.id) return;
+    setResettingPolicy(true);
+    setPolicyError("");
+    setPolicyStatus("");
+    try {
+      setActivePolicy(await resetActivePolicy());
+      setPolicyStatus("Default policy restored");
+    } catch (error) {
+      setPolicyError(error instanceof Error ? error.message : "Could not reset the policy. Please try again.");
+    } finally {
+      setResettingPolicy(false);
+    }
+  }
+
   function clearChat() {
     setMessages([]);
     setQuestion("");
@@ -129,7 +146,15 @@ export default function Home() {
 
       <section className="mx-auto flex min-h-[calc(100vh-81px)] max-w-4xl flex-col px-5 py-8">
         <div className="mb-4 text-sm text-slate-600" aria-live="polite">
-          <p className="break-words font-medium">Active Policy: {activePolicy?.name ?? "Not yet confirmed"}</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="min-w-0 break-words font-medium">Active Policy: {activePolicy ? activePolicy.id ? activePolicy.name : "Default Employee Handbook (NovaTech)" : "Not yet confirmed"}</p>
+            {activePolicy?.id && (
+              <button type="button" onClick={useDefaultPolicy} disabled={loading || resettingPolicy} className="rounded text-sm font-medium text-blue-700 hover:text-blue-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50">
+                {resettingPolicy ? "Restoring default policy..." : "Use Default Policy"}
+              </button>
+            )}
+          </div>
+          {policyStatus && <p role="status" className="mt-2 text-emerald-700">{policyStatus}</p>}
           {policyError && <p role="alert" className="mt-2 text-red-700">{policyError}</p>}
         </div>
         <AiDisclosure uploaded={Boolean(activePolicy?.id)} />
@@ -178,7 +203,7 @@ export default function Home() {
 
         <ChatInput
           question={question}
-          loading={loading}
+          loading={loading || resettingPolicy}
           onQuestionChange={setQuestion}
           onSubmit={() => askQuestion()}
         />

@@ -142,3 +142,86 @@ test("upload route validates multipart data and stores extracted text", async ()
   const empty = new FormData(); empty.append("other", "x");
   assert.equal((await upload(new Request("http://localhost/api/policy/upload", { method: "POST", body: empty }))).status, 400);
 });
+const { GET: getPolicyRoute, DELETE: deletePolicyRoute } = await import("../app/api/policy/route.ts");
+const { resetActivePolicy, readPolicyId } = await import("../lib/policy-client.ts");
+const { POLICY_STORAGE_KEY } = await import("../lib/policy-shared.ts");
+
+test("reset clears browser/server selection and the next answer uses the built-in handbook", async () => {
+  const saved = savePolicy("37-day-policy.pdf", sections);
+  const storage = new Map([[POLICY_STORAGE_KEY, saved.id]]);
+  const originalStorage = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  const originalFetch = globalThis.fetch;
+  const originalClaude = anthropic.messages.create;
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: {
+    getItem: (key) => storage.get(key) ?? null,
+    removeItem: (key) => storage.delete(key),
+  } });
+  globalThis.fetch = async (url, options) => {
+    const request = new Request(new URL(url, "http://localhost"), options);
+    return options?.method === "DELETE" ? deletePolicyRoute(request) : getPolicyRoute(request);
+  };
+  try {
+    let expectedDays = 37;
+    let calls = 0;
+    anthropic.messages.create = async (request) => {
+      calls++;
+      const prompt = request.messages[0].content;
+      assert.match(prompt, new RegExp(`${expectedDays} days`));
+      assert.doesNotMatch(prompt, new RegExp(`${expectedDays === 37 ? 20 : 37} days`));
+      if (expectedDays === 20) assert.doesNotMatch(prompt, /SECTION U1/);
+      return { content: [{ type: "text", text: JSON.stringify({
+        answer: `${expectedDays} days annually.`, section: expectedDays === 37 ? "U1" : "4.2",
+        sectionTitle: "Annual leave", escalated: false, referral: null,
+      }) }] };
+    };
+    const before = await (await chat(chatRequest("annual leave", readPolicyId()))).json();
+    assert.equal(before.answer, "37 days annually.");
+    const restored = await resetActivePolicy();
+    assert.equal(restored.id, null);
+    assert.equal(restored.name, "NovaTech Employee Handbook");
+    assert.equal(readPolicyId(), null);
+    assert.equal(getPolicy(saved.id), undefined);
+    expectedDays = 20;
+    const afterResponse = await chat(chatRequest("annual leave", readPolicyId()));
+    assert.equal(afterResponse.status, 200);
+    const after = await afterResponse.json();
+    assert.equal(after.answer, "20 days annually.");
+    assert.equal(after.section, "4.2");
+    assert.equal(after.escalated, false);
+    assert.equal(calls, 2);
+    assert.equal((await resetActivePolicy()).id, null);
+  } finally {
+    globalThis.fetch = originalFetch;
+    anthropic.messages.create = originalClaude;
+    if (originalStorage) Object.defineProperty(globalThis, "sessionStorage", originalStorage);
+    else delete globalThis.sessionStorage;
+    deletePolicy(saved.id);
+  }
+});
+
+test("failed reset keeps the uploaded selection for retry", async () => {
+  const saved = savePolicy("keep.pdf", sections);
+  const storage = new Map([[POLICY_STORAGE_KEY, saved.id]]);
+  const originalStorage = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  const originalFetch = globalThis.fetch;
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: {
+    getItem: (key) => storage.get(key) ?? null,
+    removeItem: (key) => storage.delete(key),
+  } });
+  try {
+    globalThis.fetch = async (url, options) => options?.method === "DELETE"
+      ? new Response(null, { status: 500 })
+      : getPolicyRoute(new Request(new URL(url, "http://localhost")));
+    await assert.rejects(resetActivePolicy(), /Could not clear/);
+    assert.equal(readPolicyId(), saved.id);
+    assert.equal(getPolicy(saved.id).name, "keep.pdf");
+    globalThis.fetch = async () => new Response(null, { status: 500 });
+    await assert.rejects(resetActivePolicy(), /Could not restore/);
+    assert.equal(readPolicyId(), saved.id);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalStorage) Object.defineProperty(globalThis, "sessionStorage", originalStorage);
+    else delete globalThis.sessionStorage;
+    deletePolicy(saved.id);
+  }
+});
