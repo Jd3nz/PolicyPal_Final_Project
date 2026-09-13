@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchActivePolicy } from "@/lib/policy-client";
+import type { PolicySummary } from "@/lib/policy-shared";
 
 import PolicyHeader from "@/components/PolicyHeader";
 import AiDisclosure from "@/components/AiDisclosure";
@@ -21,6 +23,12 @@ export default function Home() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [activePolicy, setActivePolicy] = useState<PolicySummary | null>(null);
+  const [policyError, setPolicyError] = useState("");
+
+  useEffect(() => {
+    fetchActivePolicy().then(setActivePolicy).catch((error: Error) => setPolicyError(error.message));
+  }, []);
 
   async function askQuestion(text?: string) {
     const submittedQuestion = (
@@ -45,7 +53,12 @@ export default function Home() {
     setQuestion("");
     setLoading(true);
 
+    let policyConfirmed = false;
     try {
+      const policy = await fetchActivePolicy();
+      policyConfirmed = true;
+      setActivePolicy(policy);
+      setPolicyError("");
       // Temporary delay to simulate the AI response.
       // Later this will be replaced with the Claude API.
       await new Promise((resolve) =>
@@ -59,14 +72,14 @@ export default function Home() {
       },
       body: JSON.stringify({
         question: submittedQuestion,
+        policyId: policy.id,
       }),
     });
 
-    if (!response.ok) {
-      throw new Error("Unable to get PolicyPal response.");
-    }
-
     const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.answer || "Unable to get PolicyPal response.");
+    }
 
       const assistantMessage: Message = {
     id: Date.now() + 1,
@@ -82,7 +95,9 @@ export default function Home() {
         ...current,
         assistantMessage,
       ]);
-    } catch {
+    } catch (error) {
+      if (!policyConfirmed) setActivePolicy(null);
+      setPolicyError(error instanceof Error ? error.message : "Could not confirm the active policy.");
       const errorMessage: Message = {
         id: Date.now() + 1,
         role: "assistant",
@@ -113,7 +128,11 @@ export default function Home() {
       />
 
       <section className="mx-auto flex min-h-[calc(100vh-81px)] max-w-4xl flex-col px-5 py-8">
-        <AiDisclosure />
+        <div className="mb-4 text-sm text-slate-600" aria-live="polite">
+          <p className="break-words font-medium">Active Policy: {activePolicy?.name ?? "Not yet confirmed"}</p>
+          {policyError && <p role="alert" className="mt-2 text-red-700">{policyError}</p>}
+        </div>
+        <AiDisclosure uploaded={Boolean(activePolicy?.id)} />
 
         {/* First Visit */}
         {messages.length === 0 && (

@@ -1,6 +1,6 @@
 import {
   handbookSections,
-  HandbookSection,
+  type HandbookSection,
 } from "@/data/handbook";
 
 const synonyms: Record<string, string[]> = {
@@ -242,17 +242,18 @@ export function shouldAlwaysEscalate(
 export function retrieveRelevantSections(
   question: string,
   limit = 5,
+  source: HandbookSection[] = handbookSections,
 ): HandbookSection[] {
   // Force Section 12 for personal/legal/medical matters
   if (shouldAlwaysEscalate(question)) {
-    const section12 = handbookSections.find(
+    const section12 = source === handbookSections ? source.find(
       (section) => section.section === "12",
-    );
+    ) : undefined;
 
     return section12 ? [section12] : [];
   }
 
-  const scored = handbookSections
+  const scored = source
     .map((section) => ({
       section,
       score: scoreSection(question, section),

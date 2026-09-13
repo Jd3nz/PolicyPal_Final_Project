@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { getPolicy } from "@/lib/policy-store";
+
+export const runtime = "nodejs";
 
 import { anthropic } from "@/lib/claude";
 
@@ -45,7 +48,16 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("PolicyPal question:", question);
+    const policyId = typeof body.policyId === "string" ? body.policyId : null;
+    const policy = getPolicy(policyId);
+    if (!policy) {
+      return NextResponse.json({
+        answer: "Your uploaded policy has expired. Upload it again or switch to the default handbook.",
+        section: null, sectionTitle: null, escalated: true,
+        referral: "Please contact People & Culture or your manager.",
+      }, { status: 409 });
+    }
+    const uploaded = policy.id !== null;
 
     // --------------------------------------------------
     // 3. Check if question MUST be escalated
@@ -58,12 +70,12 @@ export async function POST(request: Request) {
       const escalationResponse: PolicyPalResponse = {
         answer:
           "I cannot answer this question because it depends on personal employee information, legal advice, medical advice, or another matter that the handbook requires to be handled by a person.",
-        section: "12",
+        section: uploaded ? null : "12",
         sectionTitle:
-          "Matters not covered by this handbook",
+          uploaded ? null : "Matters not covered by this handbook",
         escalated: true,
         referral:
-          "Please contact People & Culture at peopleandculture@novatech.example or speak with your manager.",
+          uploaded ? "Please contact People & Culture or your manager." : "Please contact People & Culture at peopleandculture@novatech.example or speak with your manager.",
       };
 
       return NextResponse.json(
@@ -76,7 +88,7 @@ export async function POST(request: Request) {
     // --------------------------------------------------
 
     const sections =
-      retrieveRelevantSections(question);
+      retrieveRelevantSections(question, 5, policy.sections);
 
     console.log(
       "Retrieved sections:",
@@ -93,13 +105,13 @@ export async function POST(request: Request) {
     if (sections.length === 0) {
       const noMatchResponse: PolicyPalResponse = {
         answer:
-          "I cannot confirm an answer to this question from the approved NovaTech Employee Handbook.",
-        section: "12",
+          uploaded ? "I cannot confirm an answer to this question from the active uploaded policy." : "I cannot confirm an answer to this question from the approved NovaTech Employee Handbook.",
+        section: uploaded ? null : "12",
         sectionTitle:
-          "Matters not covered by this handbook",
+          uploaded ? null : "Matters not covered by this handbook",
         escalated: true,
         referral:
-          "Please contact People & Culture at peopleandculture@novatech.example.",
+          uploaded ? "Please contact People & Culture or your manager." : "Please contact People & Culture at peopleandculture@novatech.example.",
       };
 
       return NextResponse.json(
@@ -114,6 +126,7 @@ export async function POST(request: Request) {
     const prompt = buildPolicyPalPrompt(
       question,
       sections,
+      uploaded,
     );
 
     // --------------------------------------------------
@@ -206,6 +219,21 @@ export async function POST(request: Request) {
     // 12. Return result to frontend
     // --------------------------------------------------
 
+    if (uploaded) {
+      const citation = sections.find((section) => section.section === parsed.section);
+      if (parsed.escalated || !citation) {
+        parsed = {
+          answer: parsed.escalated ? parsed.answer : "I cannot confirm a supported answer from the active uploaded policy.",
+          section: null,
+          sectionTitle: null,
+          escalated: true,
+          referral: "Please contact People & Culture or your manager.",
+        };
+      } else {
+        parsed.sectionTitle = citation.title;
+        parsed.referral = null;
+      }
+    }
     return NextResponse.json(parsed);
   } catch (error) {
     // --------------------------------------------------
@@ -224,7 +252,7 @@ export async function POST(request: Request) {
       sectionTitle: null,
       escalated: true,
       referral:
-        "peopleandculture@novatech.example",
+        "Please contact People & Culture or your manager.",
     };
 
     return NextResponse.json(
