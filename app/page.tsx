@@ -142,15 +142,6 @@ export default function Home() {
 
   return (
     <PageContainer hasMessages={messages.length > 0} onClear={clearChat}>
-<<<<<<< HEAD
-        <div className="rounded-2xl border border-white/90 bg-white/90 p-5 shadow-[0_8px_32px_-16px_rgba(30,64,175,0.18)] ring-1 ring-slate-200/60 backdrop-blur-sm sm:p-6" aria-live="polite">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 items-center gap-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600"><PolicyIcon name="document" className="h-6 w-6" /></span>
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-xs">Active Policy</p>
-                <p className="mt-1 break-words text-base font-semibold text-slate-800 sm:text-lg">{activePolicy ? activePolicy.id ? activePolicy.name : "Default Employee Handbook" : "Not yet confirmed"}</p>
-=======
         <div className="rounded-[1.6rem] border border-white/95 bg-white/94 p-5 shadow-[0_24px_70px_-36px_rgba(30,64,175,0.62)] ring-1 ring-blue-100/80 backdrop-blur-xl sm:p-6" aria-live="polite">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-4">
@@ -158,18 +149,12 @@ export default function Home() {
               <div className="min-w-0">
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#5470a9] sm:text-xs">Active Policy</p>
                 <p className="mt-1 break-words text-base font-extrabold text-[#0a1741] sm:text-lg">{activePolicy ? activePolicy.id ? activePolicy.name : "Default Employee Handbook" : "Not yet confirmed"}</p>
->>>>>>> 1619a4c (Update PolicyPal premium UI)
                 {activePolicy && <p className="mt-1 text-xs text-slate-500 sm:text-sm">{activePolicy.id ? "Your uploaded company policy" : "NovaTech · Built-in handbook"}</p>}
               </div>
             </div>
             <div className="flex shrink-0 flex-wrap items-center gap-3">
-<<<<<<< HEAD
-              {activePolicy && <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Active</span>}
-              <Link href="/upload" className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-300 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600">Change policy</Link>
-=======
               {activePolicy && <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-xs font-extrabold text-emerald-700 shadow-sm"><span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.65)]" />Active</span>}
               <Link href="/upload" className="rounded-xl border border-blue-200 bg-white px-5 py-2.5 text-sm font-bold text-[#183a78] shadow-sm transition hover:-translate-y-0.5 hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600">Change policy</Link>
->>>>>>> 1619a4c (Update PolicyPal premium UI)
               {activePolicy?.id && (
                 <button type="button" onClick={useDefaultPolicy} disabled={loading || resettingPolicy} className="rounded-lg px-2 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50">
                   {resettingPolicy ? "Restoring default policy..." : "Use Default Policy"}
@@ -205,11 +190,7 @@ export default function Home() {
             {/* Loading State */}
             {loading && (
               <div className="flex justify-start">
-<<<<<<< HEAD
-                <div className="rounded-2xl border border-blue-100 bg-white px-5 py-4 shadow-sm">
-=======
                 <div className="rounded-2xl border border-blue-100 bg-white/95 px-5 py-4 shadow-[0_18px_40px_-25px_rgba(37,99,235,0.55)]">
->>>>>>> 1619a4c (Update PolicyPal premium UI)
                   <p className="text-sm text-slate-500">
                     PolicyPal is checking the
                     handbook...
@@ -234,11 +215,7 @@ export default function Home() {
             onSubmit={() => askQuestion()}
           />
           <AiDisclosure />
-<<<<<<< HEAD
-          <p className="mt-6 border-t border-slate-200/70 pt-5 text-center text-xs leading-6 text-slate-400">
-=======
           <p className="mt-6 border-t border-blue-100/80 pt-5 text-center text-xs font-medium leading-6 text-slate-500">
->>>>>>> 1619a4c (Update PolicyPal premium UI)
             For personal or sensitive employment matters, contact People &amp; Culture.
           </p>
         </div>

@@ -39,11 +39,7 @@ export default function AboutPage() {
           <PolicyIcon name="book" className="h-7 w-7" />
         </span>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">About PolicyPal</h1>
-<<<<<<< HEAD
-        <p className="mt-3 text-lg font-semibold text-blue-700 sm:text-xl">Workplace policies, easier to understand.</p>
-=======
         <p className="mt-3 text-lg font-extrabold text-blue-700 sm:text-xl">Workplace policies, easier to understand.</p>
->>>>>>> 1619a4c (Update PolicyPal premium UI)
         <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
           PolicyPal is an AI-powered HR policy assistant that helps employees find clear answers to everyday workplace questions. It brings relevant information from an employee handbook or uploaded company policy into a simple conversation, with references that show where the answer comes from.
         </p>
@@ -63,13 +59,8 @@ export default function AboutPage() {
         </p>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
-<<<<<<< HEAD
-            <li key={feature.title} className="rounded-xl border border-blue-100/80 bg-gradient-to-b from-blue-50/70 to-white p-5 shadow-sm shadow-blue-100/40">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-blue-600 ring-1 ring-blue-100">
-=======
             <li key={feature.title} className="rounded-2xl border border-blue-100 bg-[linear-gradient(180deg,#f7fbff,#ffffff)] p-5 shadow-[0_16px_38px_-28px_rgba(37,99,235,0.55)] transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-[0_24px_50px_-28px_rgba(37,99,235,0.48)]">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(145deg,#ffffff,#dceeff)] text-blue-700 shadow-sm ring-1 ring-blue-100">
->>>>>>> 1619a4c (Update PolicyPal premium UI)
                 <PolicyIcon name={feature.icon} className="h-5 w-5" />
               </span>
               <h3 className="mt-4 text-sm font-semibold text-slate-800">{feature.title}</h3>
@@ -98,17 +89,10 @@ export default function AboutPage() {
         </p>
       </SectionCard>
 
-<<<<<<< HEAD
-      <section className="rounded-2xl border border-blue-100 bg-white/85 px-5 py-8 text-center shadow-sm shadow-blue-100/50 sm:px-8 sm:py-10">
-        <h2 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">Have a workplace policy question?</h2>
-        <p className="mt-2 text-sm leading-7 text-slate-600 sm:text-base">Start a conversation with PolicyPal.</p>
-        <Link href="/" className="mt-5 inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600">
-=======
       <section className="overflow-hidden rounded-[1.7rem] border border-blue-200 bg-[linear-gradient(135deg,#0b2e78,#155eef)] px-5 py-9 text-center text-white shadow-[0_24px_60px_-30px_rgba(30,64,175,0.7)] sm:px-8 sm:py-11">
         <h2 className="text-xl font-extrabold tracking-tight text-white sm:text-2xl">Have a workplace policy question?</h2>
         <p className="mt-2 text-sm font-medium leading-7 text-blue-100 sm:text-base">Start a conversation with PolicyPal.</p>
         <Link href="/" className="mt-5 inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-extrabold text-blue-700 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.35)] transition hover:-translate-y-0.5 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300">
->>>>>>> 1619a4c (Update PolicyPal premium UI)
           Start a conversation
         </Link>
       </section>
