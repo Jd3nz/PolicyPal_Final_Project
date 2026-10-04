@@ -1,0 +1,33 @@
+@startuml
+title PolicyPal - Policy Upload Sequence
+
+skinparam shadowing false
+
+actor User
+participant "Upload Page" as UI
+participant "Policy API" as API
+participant "Document Parser" as Parser
+database "Temporary Policy Store" as Store
+
+User -> UI : Select PDF / DOCX
+UI -> API : Upload document
+
+API -> Parser : Extract policy text
+
+alt Invalid or unreadable document
+
+    Parser --> API : Error
+    API --> UI : Show error message
+
+else Valid policy
+
+    Parser --> API : Extracted text
+    API -> Store : Save policy temporarily
+    Store --> API : Policy activated
+
+    API --> UI : Upload successful
+    UI --> User : Show active policy
+
+end
+
+@enduml

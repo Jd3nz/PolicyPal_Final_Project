@@ -1,0 +1,39 @@
+@startuml
+title PolicyPal - Conceptual Data Model
+
+skinparam shadowing false
+
+entity "POLICY" as Policy {
+  * id
+  --
+  name
+  sourceType
+  isDefault
+}
+
+entity "POLICY SECTION" as Section {
+  * section
+  --
+  title
+  content
+  keywords
+}
+
+entity "ANSWER" as Answer {
+  * answer
+  --
+  section
+  sectionTitle
+  escalated
+  referral
+}
+
+Policy ||--o{ Section : contains
+Section ||--o{ Answer : referenced by
+
+note bottom of Policy
+Uploaded policies are stored
+temporarily, not in a database.
+end note
+
+@enduml

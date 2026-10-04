@@ -1,0 +1,20 @@
+@startuml
+title PolicyPal - Reset to Default Policy
+
+skinparam shadowing false
+
+actor User
+participant "PolicyPal UI" as UI
+participant "Policy API" as API
+database "Policy Store" as Store
+
+User -> UI : Click "Use Default Policy"
+UI -> API : Reset policy
+
+API -> Store : Clear uploaded policy
+Store --> API : Default handbook active
+
+API --> UI : Reset successful
+UI --> User : Show default handbook
+
+@enduml

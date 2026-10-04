@@ -1,0 +1,39 @@
+@startuml
+title PolicyPal - Use Case Diagram
+
+left to right direction
+skinparam shadowing false
+
+actor "Employee / User" as User
+actor "Claude API" as Claude
+
+rectangle "PolicyPal" {
+
+  usecase "Ask Policy Question" as Ask
+  usecase "View Answer & Citation" as Answer
+
+  usecase "Upload Company Policy" as Upload
+  usecase "View Active Policy" as Active
+  usecase "Use Default Policy" as Reset
+
+  usecase "View About Page" as About
+
+  usecase "Retrieve Relevant Policy" as Retrieve
+  usecase "Generate Grounded Answer" as Generate
+  usecase "Refer Sensitive Question\nto People & Culture" as Escalate
+}
+
+User --> Ask
+User --> Answer
+User --> Upload
+User --> Active
+User --> Reset
+User --> About
+
+Ask .> Retrieve : <<include>>
+Ask .> Generate : <<include>>
+Escalate .> Ask : <<extend>>
+
+Claude --> Generate
+
+@enduml

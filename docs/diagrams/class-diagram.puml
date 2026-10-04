@@ -1,0 +1,55 @@
+@startuml
+title PolicyPal - Class Diagram
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+class Policy {
+  name
+  isDefault
+  sections
+}
+
+class PolicySection {
+  section
+  title
+  content
+  keywords
+}
+
+class PolicyManager {
+  getActivePolicy()
+  setUploadedPolicy()
+  resetToDefault()
+}
+
+class PolicyParser {
+  parsePDF()
+  parseDOCX()
+}
+
+class PolicyRetriever {
+  retrieveSections()
+  checkEscalation()
+}
+
+class ClaudeService {
+  generateAnswer()
+}
+
+class PolicyPalResponse {
+  answer
+  section
+  escalated
+  referral
+}
+
+Policy "1" *-- "*" PolicySection
+
+PolicyManager --> Policy
+PolicyParser --> Policy
+PolicyRetriever --> PolicySection
+PolicyRetriever --> ClaudeService
+ClaudeService --> PolicyPalResponse
+
+@enduml

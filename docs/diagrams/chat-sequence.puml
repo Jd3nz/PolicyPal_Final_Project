@@ -1,0 +1,33 @@
+@startuml
+title PolicyPal - Question Answering Sequence
+
+skinparam shadowing false
+
+actor Employee
+participant "PolicyPal UI" as UI
+participant "Chat API" as API
+participant "Policy Retrieval" as Retrieval
+participant "Claude API" as Claude
+
+Employee -> UI : Ask question
+UI -> API : Send question
+
+API -> Retrieval : Find relevant policy
+Retrieval --> API : Relevant sections
+
+alt Sensitive / unsupported question
+
+    API --> UI : Referral response
+    UI --> Employee : Contact People & Culture
+
+else Policy answer available
+
+    API -> Claude : Question + policy context
+    Claude --> API : Grounded answer
+
+    API --> UI : Answer + citation
+    UI --> Employee : Display answer
+
+end
+
+@enduml

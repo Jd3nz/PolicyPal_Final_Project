@@ -1,0 +1,53 @@
+@startuml
+title PolicyPal - System Architecture
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+
+actor "Employee" as User
+
+rectangle "PolicyPal Frontend\nNext.js + React" as Frontend {
+  component "Chat" as Chat
+  component "About" as About
+  component "Upload Policy" as Upload
+}
+
+rectangle "Backend\nNext.js API Routes" as Backend {
+  component "Chat API" as ChatAPI
+  component "Policy API" as PolicyAPI
+}
+
+rectangle "Policy Services" as Services {
+  component "Policy Parser\nPDF / DOCX" as Parser
+  component "Retrieval Engine" as Retrieval
+}
+
+database "Default Handbook" as Default
+database "Uploaded Policy\nTemporary Memory" as Custom
+
+cloud "Anthropic\nClaude API" as Claude
+
+User --> Frontend
+
+Chat --> ChatAPI
+Upload --> PolicyAPI
+
+PolicyAPI --> Parser
+Parser --> Custom
+
+ChatAPI --> Retrieval
+Default --> Retrieval
+Custom --> Retrieval
+
+Retrieval --> Claude
+Claude --> ChatAPI
+
+ChatAPI --> Chat : Answer + Citation
+
+note bottom of Custom
+Uploaded policies are temporary.
+end note
+
+@enduml

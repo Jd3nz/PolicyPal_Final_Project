@@ -1,0 +1,79 @@
+@startuml
+title PolicyPal - Complete Sequence Diagram
+
+skinparam shadowing false
+skinparam responseMessageBelowArrow true
+
+actor User
+
+participant "PolicyPal UI" as UI
+participant "Policy API" as PolicyAPI
+participant "Chat API" as ChatAPI
+participant "Policy Manager" as Policy
+participant "Document Parser" as Parser
+participant "Retrieval Engine" as Retrieval
+participant "Claude API" as Claude
+
+== Upload Policy ==
+
+User -> UI : Select PDF / DOCX
+UI -> PolicyAPI : Upload policy
+
+PolicyAPI -> Parser : Extract text
+
+alt Invalid / unreadable file
+
+    Parser --> PolicyAPI : Error
+    PolicyAPI --> UI : Upload failed
+    UI --> User : Show error
+
+else Valid policy
+
+    Parser --> PolicyAPI : Extracted text
+    PolicyAPI -> Policy : Set uploaded policy
+    Policy --> PolicyAPI : Policy active
+    PolicyAPI --> UI : Upload successful
+    UI --> User : Show active policy
+
+end
+
+
+== Ask Policy Question ==
+
+User -> UI : Ask question
+UI -> ChatAPI : Send question
+
+ChatAPI -> Policy : Get active policy
+Policy --> ChatAPI : Default or uploaded policy
+
+ChatAPI -> Retrieval : Find relevant sections
+Retrieval --> ChatAPI : Relevant policy content
+
+alt Sensitive / unsupported question
+
+    ChatAPI --> UI : Escalation response
+    UI --> User : Refer to People & Culture
+
+else Relevant policy found
+
+    ChatAPI -> Claude : Question + policy context
+    Claude --> ChatAPI : Grounded answer
+
+    ChatAPI --> UI : Answer + citation
+    UI --> User : Display answer
+
+end
+
+
+== Reset to Default Policy ==
+
+User -> UI : Click "Use Default Policy"
+UI -> PolicyAPI : Reset policy
+
+PolicyAPI -> Policy : Clear uploaded policy
+Policy --> PolicyAPI : Default handbook active
+
+PolicyAPI --> UI : Reset successful
+UI --> User : Show default policy
+
+@enduml
