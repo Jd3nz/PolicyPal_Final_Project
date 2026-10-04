@@ -87,11 +87,19 @@ export default function UploadPage() {
                 if (event.dataTransfer.files.length !== 1) { setError("Choose one PDF or DOCX document at a time."); return; }
                 selectFile(event.dataTransfer.files[0]);
               }}
+<<<<<<< HEAD
               className={`relative flex flex-col items-center rounded-2xl border-2 border-dashed px-4 py-10 text-center transition focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-blue-600 sm:py-12 ${busy ? "cursor-wait opacity-60" : "cursor-pointer"} ${dragging ? "border-blue-500 bg-blue-100/70" : "border-blue-200 bg-gradient-to-b from-blue-50/70 to-white hover:border-blue-400"}`}>
               <input id="policy-file" type="file" accept=".pdf,.docx" disabled={busy} aria-label="Company policy document"
                 aria-describedby="file-help upload-error" aria-invalid={Boolean(error)} className="sr-only"
                 onChange={(event) => selectFile(event.target.files?.[0] ?? null)} />
               <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-white text-blue-600 shadow-md shadow-blue-100/50"><PolicyIcon name="document" className="h-8 w-8" /></span>
+=======
+              className={`relative flex flex-col items-center rounded-2xl border-2 border-dashed px-4 py-10 text-center transition focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-blue-600 sm:py-12 ${busy ? "cursor-wait opacity-60" : "cursor-pointer"} ${dragging ? "border-blue-500 bg-blue-100/70" : "border-blue-300 bg-[linear-gradient(180deg,rgba(239,247,255,.95),rgba(255,255,255,.98))] hover:border-cyan-400 hover:shadow-[0_18px_45px_-28px_rgba(37,99,235,0.6)]"}`}>
+              <input id="policy-file" type="file" accept=".pdf,.docx" disabled={busy} aria-label="Company policy document"
+                aria-describedby="file-help upload-error" aria-invalid={Boolean(error)} className="sr-only"
+                onChange={(event) => selectFile(event.target.files?.[0] ?? null)} />
+              <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-[linear-gradient(145deg,#ffffff,#dceeff)] text-blue-700 shadow-[0_12px_30px_-18px_rgba(37,99,235,0.65)]"><PolicyIcon name="document" className="h-8 w-8" /></span>
+>>>>>>> 1619a4c (Update PolicyPal premium UI)
               <span className="text-base font-semibold text-slate-800">Drop your policy document here</span>
               <span className="mt-2 text-sm text-slate-500">or <span className="font-medium text-blue-600 underline decoration-blue-200 underline-offset-4">browse files</span> to upload</span>
               <span id="file-help" className="mt-5 flex flex-wrap justify-center gap-2 text-xs font-medium text-slate-500">
@@ -113,19 +121,31 @@ export default function UploadPage() {
               <p role="status" className="text-sm leading-6 text-slate-600">{status}</p>
               <p id="upload-error" role="alert" className="text-sm leading-6 text-red-700">{error}</p>
             </div>
+<<<<<<< HEAD
             <button type="submit" disabled={!file || busy || Boolean(file && validatePolicyFile(file))} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white shadow-md shadow-blue-200/50 transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50">
+=======
+            <button type="submit" disabled={!file || busy || Boolean(file && validatePolicyFile(file))} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#0b73ff,#3157f5)] px-5 py-3.5 text-sm font-bold text-white shadow-[0_12px_28px_-14px_rgba(37,99,235,0.7),0_0_16px_rgba(49,215,255,0.22)] transition hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50">
+>>>>>>> 1619a4c (Update PolicyPal premium UI)
               <PolicyIcon name="sparkles" className="h-4 w-4" />Use this policy
             </button>
           </form>
         </SectionCard>
         <div className="space-y-6">
           <SectionCard title="Active Policy" icon="book">
+<<<<<<< HEAD
             <div className="rounded-xl border border-blue-100/80 bg-blue-50/50 p-4" aria-live="polite">
+=======
+            <div className="rounded-xl border border-blue-200/90 bg-[linear-gradient(145deg,#f5faff,#eaf4ff)] p-4 shadow-sm" aria-live="polite">
+>>>>>>> 1619a4c (Update PolicyPal premium UI)
               {active && <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Active</span>}
               <p className="break-words text-base font-semibold text-slate-800">{active ? active.id ? active.name : "Default Employee Handbook (NovaTech)" : "Not yet confirmed"}</p>
               <p className="mt-2 text-sm leading-6 text-slate-500">{active?.id ? "Your uploaded policy is the current knowledge source." : "The built-in handbook is used when no uploaded policy is selected."}</p>
             </div>
+<<<<<<< HEAD
             {active?.id && <button type="button" onClick={useDefault} disabled={busy} className="mt-4 w-full rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:opacity-50">Use Default Policy</button>}
+=======
+            {active?.id && <button type="button" onClick={useDefault} disabled={busy} className="mt-4 w-full rounded-xl border border-blue-300 bg-white px-4 py-3 text-sm font-bold text-blue-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 disabled:opacity-50">Use Default Policy</button>}
+>>>>>>> 1619a4c (Update PolicyPal premium UI)
             <Link href="/" className="mt-4 inline-flex items-center gap-2 rounded-lg py-2 text-sm font-semibold text-blue-700 hover:text-blue-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600">Back to chat <PolicyIcon name="arrow" className="h-3 w-3" /></Link>
           </SectionCard>
           <SectionCard title="Before you upload" icon="shield">
