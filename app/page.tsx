@@ -25,12 +25,39 @@ const suggestedQuestions = [
 export default function Home() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [chatLoaded, setChatLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activePolicy, setActivePolicy] = useState<PolicySummary | null>(null);
   const [policyError, setPolicyError] = useState("");
   const [resettingPolicy, setResettingPolicy] = useState(false);
   const [policyStatus, setPolicyStatus] = useState("");
 
+  useEffect(() => {
+    try {
+      const savedMessages = sessionStorage.getItem("policypal-chat");
+
+      if (savedMessages) {
+        setMessages(JSON.parse(savedMessages));
+      }
+    } catch (error) {
+      console.error("Failed to restore chat history:", error);
+    }
+
+    setChatLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!chatLoaded) return;
+
+    try {
+      sessionStorage.setItem(
+        "policypal-chat",
+        JSON.stringify(messages)
+      );
+    } catch (error) {
+      console.error("Failed to save chat history:", error);
+    }
+  }, [messages, chatLoaded]);
   useEffect(() => {
     fetchActivePolicy().then(setActivePolicy).catch((error: Error) => setPolicyError(error.message));
   }, []);
@@ -138,6 +165,7 @@ export default function Home() {
   function clearChat() {
     setMessages([]);
     setQuestion("");
+    sessionStorage.removeItem("policypal-chat");
   }
 
   return (
